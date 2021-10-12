@@ -1,0 +1,99 @@
+event eChanGotoConnected;
+event eChanGotoConfig;
+
+// payload is the state id.
+event eStartTimer: int;
+event eTimeOut: int;
+
+machine ChanMachine
+{
+    var ConfigReqID: int;
+    var ConnectedReqID: int;
+    var ConfigTimer: machine;
+    var ConnectedTimer: machine;
+    var InitServer : VarInitMachine;
+    var BT_CONFIG_timeout: int;
+    var BT_CONNECTED_timeout: int;
+
+    start state Init{
+        entry (_InitServer : VarInitMachine){
+            InitServer = _InitServer;
+            ConfigReqID = 0;
+            ConfigReqID = 0;
+            send InitServer, eSpecGetDefaultValueReq, this;
+            receive {
+                case eGetDefaultValueResp: (resp: seq[data]){
+                     BT_CONFIG_timeout= resp[19] as int;
+                     BT_CONNECTED_timeout= resp[20] as int;
+                }
+            }
+            ConfigTimer = new TimerMachine((_client=this, _timeout=BT_CONFIG_timeout));
+            ConnectedTimer = new TimerMachine((_client=this, _timeout=BT_CONNECTED_timeout));
+            goto BT_START;
+        }
+    }
+    state BT_START{
+        on eChanGotoConfig do{
+            send ConfigTimer, eStartTimer, 0;
+            goto BT_CONFIG;
+        }
+        ignore eChanGotoConnected, eTimeOut;
+    }
+    state BT_CONFIG{
+        //state id = 0
+        on eChanGotoConnected do{
+            send ConnectedTimer, eStartTimer, 1;
+            goto BT_CONNECTED;
+        }
+        on eTimeOut do (stateid: int){
+            if(stateid == 0)
+                goto BT_DEAD;
+        }
+        ignore eChanGotoConfig;
+    }
+
+    state BT_CONNECTED{
+        // state id = 1
+        on eTimeOut do (stateid: int){
+            if(stateid == 1)
+                goto BT_DEAD;
+        }
+        ignore eChanGotoConnected;
+    }
+
+    state BT_DEAD{
+        ignore eChanGotoConnected, eTimeOut;
+    }
+
+}
+
+machine TimerMachine
+{
+    var client: machine;
+    var timeout: int;
+    start state Init {
+        entry(input:(_client : machine, _timeout : int)) {
+            client = input._client;
+            timeout = input._timeout;
+            goto WaitForTimerRequests;
+        }
+    }
+
+    state WaitForTimerRequests {
+        on eStartTimer do (stateid: int){
+            goto TimerStarted, stateid;
+        }
+    }
+
+    state TimerStarted {
+        entry(stateid: int) {
+            sleepFor(timeout);
+            send client, eTimeOut, stateid;
+            goto WaitForTimerRequests;
+        }
+        ignore eStartTimer;
+    }
+}
+
+fun sleepFor(sleeptime: int) : bool ;
+
