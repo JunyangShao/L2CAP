@@ -33,6 +33,9 @@ machine ChanMachine
         }
     }
     state BT_START{
+        entry{
+            print "Channel Started";
+        }
         on eChanGotoConfig do{
             send ConfigTimer, eStartTimer, 0;
             goto BT_CONFIG;
@@ -40,6 +43,9 @@ machine ChanMachine
         ignore eChanGotoConnected, eTimeOut;
     }
     state BT_CONFIG{
+        entry{
+            print "Channel Config Success";
+        }
         //state id = 0
         on eChanGotoConnected do{
             send ConnectedTimer, eStartTimer, 1;
@@ -53,6 +59,9 @@ machine ChanMachine
     }
 
     state BT_CONNECTED{
+        entry{
+            print "Channel Connect Success";
+        }
         // state id = 1
         on eTimeOut do (stateid: int){
             if(stateid == 1)

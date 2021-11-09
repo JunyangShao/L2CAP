@@ -17,9 +17,8 @@ fun SetupClientServerSystem(numClients: int)
     var InitChannel: tChan;
     var tmpPara: tPara;
     var counter: int;
+    counter = 0;
 
-    InitServer = new VarInitMachine();
-    InitConnetcion = default(tConn);
     InitChannel = default(tChan);
     tmpPara = default(tPara);
 
@@ -31,7 +30,8 @@ fun SetupClientServerSystem(numClients: int)
     tmpPara.fVal.nSize = 2;
     tmpPara.fVal.nLow = 1;
     tmpPara.fVal.nHigh = 65535;
-    tmpPara.fVal.value = writeBuffer(2, choose(65535) + 1);
+//    tmpPara.fVal.value = writeBuffer(2, choose(65535) + 1);
+    tmpPara.fVal.value = writeBuffer(2, 1 + 1);
     InitChannel += (0, tmpPara);
 
     tmpPara.nKey = 2;
@@ -42,14 +42,18 @@ fun SetupClientServerSystem(numClients: int)
     tmpPara.fVal.nSize = 1;
     tmpPara.fVal.nLow = 1;
     tmpPara.fVal.nHigh = 23;
-    tmpPara.fVal.value = writeBuffer(1, choose(23) + 1);
+//    tmpPara.fVal.value = writeBuffer(1, choose(23) + 1);
+    tmpPara.fVal.value = writeBuffer(1, 1 + 1);
     InitChannel += (1, tmpPara);
 
+    InitServer = new VarInitMachine();
     InitConnetcion += (0, InitChannel);
-
+    InitConnetcion = default(tConn);
     ConnServer = new ConnMachine((serv=InitServer, conn=InitConnetcion));
 
     while(counter < numClients){
         new ClientMachine((_InitServer=InitServer, _ConnServer=ConnServer));
+        counter = counter + 1;
     }
+
 }

@@ -25,6 +25,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
     }
     state Observe{
         on eParsetFix do (value: tFix){
+               
             return;
         }
         on eParsetVar do (value: tVar){

@@ -1,4 +1,0 @@
-/Users/shaojunyang/Downloads/playground/P/Tutorial/6_L2CAP/obj/Release/netcoreapp3.1/L2CAP.csprojAssemblyReference.cache
-/Users/shaojunyang/Downloads/playground/P/Tutorial/6_L2CAP/obj/Release/netcoreapp3.1/L2CAP.AssemblyInfoInputs.cache
-/Users/shaojunyang/Downloads/playground/P/Tutorial/6_L2CAP/obj/Release/netcoreapp3.1/L2CAP.AssemblyInfo.cs
-/Users/shaojunyang/Downloads/playground/P/Tutorial/6_L2CAP/obj/Release/netcoreapp3.1/L2CAP.csproj.CoreCompileInputs.cache

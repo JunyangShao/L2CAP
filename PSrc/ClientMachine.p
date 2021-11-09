@@ -38,24 +38,29 @@ machine ClientMachine
                 // ConnReq
                 request.hcmsub.h.f[0].value = writeBuffer(request.hcmsub.h.f[0].nSize, request.hcmsub.msub[0].nType);
                 request_option0.fp[0].value =
-                    writeBuffer(connreq.fp[0].nSize, choose(connreq.fp[0].nHigh - connreq.fp[0].nLow + 1) + 1);
+//                    writeBuffer(connreq.fp[0].nSize, choose(connreq.fp[0].nHigh - connreq.fp[0].nLow + 1) + 1);
+                    writeBuffer(connreq.fp[0].nSize, 1 + 1);
                 request_option0.fp[1].value =
-                    writeBuffer(connreq.fp[1].nSize, choose(connreq.fp[1].nHigh - connreq.fp[1].nLow + 1) + 1);
-                request.hcmsub.msub[0].msub = request_option0;
+//                    writeBuffer(connreq.fp[1].nSize, choose(connreq.fp[1].nHigh - connreq.fp[1].nLow + 1) + 1);
+                    writeBuffer(connreq.fp[1].nSize, 1 + 1);
+                request.hcmsub.msub[0].msub = request_option0 as data;
             }
             else{
                 // ConfReq
                 request.hcmsub.h.f[0].value = writeBuffer(request.hcmsub.h.f[0].nSize,request.hcmsub.msub[1].nType);
                 request_option1.hmsub.h.f[0].value =
-                    writeBuffer(confreq.h.f[0].nSize, choose(confreq.h.f[0].nHigh- confreq.h.f[0].nLow + 1) + 1);
+//                    writeBuffer(confreq.h.f[0].nSize, choose(confreq.h.f[0].nHigh- confreq.h.f[0].nLow + 1) + 1);
+                    writeBuffer(confreq.h.f[0].nSize, 1 + 1);
                 request_option1_msub.l.pP[0].fKey.value =
-                    writeBuffer(request_option1_msub.l.pP[0].fKey.nSize, choose(request_option1_msub.l.pP[0].fKey.nHigh
-                                                              - request_option1_msub.l.pP[0].fKey.nLow + 1) + 1);
+//                    writeBuffer(request_option1_msub.l.pP[0].fKey.nSize, choose(request_option1_msub.l.pP[0].fKey.nHigh
+//                                                              - request_option1_msub.l.pP[0].fKey.nLow + 1) + 1);
+                    writeBuffer(request_option1_msub.l.pP[0].fKey.nSize, 1 + 1);
                 request_option1_msub.l.pP[0].fVal.value =
-                    writeBuffer(request_option1_msub.l.pP[0].fVal.nSize, choose(request_option1_msub.l.pP[0].fVal.nHigh
-                                                              - request_option1_msub.l.pP[0].fVal.nLow + 1) + 1);
-                request_option1.hmsub.msub = request_option1_msub;
-                request.hcmsub.msub[1].msub = request_option1;
+//                    writeBuffer(request_option1_msub.l.pP[0].fVal.nSize, choose(request_option1_msub.l.pP[0].fVal.nHigh
+//                                                              - request_option1_msub.l.pP[0].fVal.nLow + 1) + 1);
+                    writeBuffer(request_option1_msub.l.pP[0].fVal.nSize, 1 + 1);
+                request_option1.hmsub.msub = request_option1_msub as data;
+                request.hcmsub.msub[1].msub = request_option1 as data;
             }
             send ConnServer, eL2CmdReq, (source = this, req = request);
             goto WaitForReply;

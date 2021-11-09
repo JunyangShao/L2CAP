@@ -129,28 +129,30 @@ fun readBuffer (buf : seq[int]) : int {
     return ret;
 }
 
-fun writeBuffer (val : int, bufsize : int) : seq[int] {
+fun writeBuffer (bufsize : int, val : int) : seq[int] {
     var counter : int;
-    var curval : int;
-    var tmp1 : int;
-    var tmp2 : int;
+    var tmp : int;
+    var ret_rev : seq[int];
     var ret : seq[int];
-    var counter2: int;
+    var curval: int;
 
-    counter = 0;
     curval = val;
-    tmp1 = 1;
+    counter = 0;
     ret = default(seq[int]);
+//    print format ("val={0}, bufsize={1}", val, bufsize);
     while (counter < bufsize){
-        while (counter2 < bufsize - counter){
-            tmp1 = 256 * tmp1;
-            counter2 = counter2 + 1;
-        }
-        tmp2 = curval / tmp1;
-        ret += (sizeof(ret) - 1, tmp2);
-        curval = curval - tmp1 * tmp2;
+        tmp = curval / 256;
+        ret_rev += (counter, curval - 256 * tmp);
+//        print format ("curval={0}, curval- 256 * tmp ={1}", curval, curval-256*tmp);
+        curval = tmp;
         counter = counter + 1;
     }
+    counter = 0;
+    while (counter < sizeof(ret_rev)){
+        ret += (counter, ret_rev[sizeof(ret_rev) - counter - 1]);
+        counter = counter + 1;
+    }
+//    print "return from write buffer";
     return ret;
 }
 
