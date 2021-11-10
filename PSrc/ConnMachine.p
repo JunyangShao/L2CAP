@@ -26,6 +26,7 @@ machine ConnMachine
             var MsgCases: seq[tcMsub];
             var MsgType: int;
             var counter: int;
+//            print "receive eL2CmdReq";
             announce eParsetMsg, wReq.req;
             MsgBody = wReq.req.hcmsub;
             MsgHdr = MsgBody.h;
@@ -33,9 +34,13 @@ machine ConnMachine
             MsgType = readBuffer(MsgHdr.f[0].value);
             counter = 0;
             while(counter < sizeof(MsgCases)){
-                if(MsgType == MsgCases[counter].nType){
+                if(MsgType == MsgCases[counter].nType && MsgType == 2){
                     send this, eConnReq, (source = wReq.source, req = MsgCases[counter].msub as tMsg);
                 }
+                else if(MsgType == MsgCases[counter].nType && MsgType == 4){
+                    send this, eConfReq, (source = wReq.source, req = MsgCases[counter].msub as tMsg);
+                }
+                counter = counter + 1;
             }
         }
 
@@ -48,22 +53,25 @@ machine ConnMachine
             var tmp1 : tPara;
             var tmp2 : tPara;
             var tmp3 : tChan;
+//            print "in eConnReq";
 
             announce eParsetMsg, wReq.req;
             counter2 = 0;
             flag1 = false;
             flag2 = false;
             // the findChanByPara function is hard-coded here.
-            while(counter2 != sizeof(Connection)){
+            while(counter2 < sizeof(Connection)){
                 counter3 = 0;
-                while(counter3 != sizeof(Connection[counter2])){
+                while(counter3 < sizeof(Connection[counter2])){
                     if(Connection[counter2][counter3].nKey == 2 && readBuffer(Connection[counter2][counter3].fKey.value) == 2
                     && readBuffer(wReq.req.fp[0].value) == readBuffer(Connection[counter2][counter3].fVal.value)){
                         flag1 = true;
+//                        print "flag1 = true";
                     }
                     if(Connection[counter2][counter3].nKey == 1 && readBuffer(Connection[counter2][counter3].fKey.value) == 1
                     && readBuffer(wReq.req.fp[1].value) == readBuffer(Connection[counter2][counter3].fVal.value)){
                         flag2 = true;
+//                        print "flag2 = true";
                     }
                     counter3 = counter3 + 1;
                 }
@@ -82,7 +90,7 @@ machine ConnMachine
                 tmp3 += (1,tmp1);
                 Connection += (sizeof(Connection) - 1, tmp3);
                 ChanMachineList[sizeof(Connection)] = new ChanMachine(server);
-                send ChanMachineList[sizeof(Connection)], eChanGotoConnected;
+                send ChanMachineList[sizeof(Connection)], eChanGotoConfig;
                 send wReq.source, eConnResp, true;
                 return;
             }
@@ -100,6 +108,7 @@ machine ConnMachine
             var counter3 : int;
             var targetChan: tChan;
             var targetChanM : ChanMachine;
+//            print "in eConfReq";
 
             announce eParsetMsg, wReq.req;
             hm = wReq.req.hmsub;
@@ -111,25 +120,33 @@ machine ConnMachine
             counter2 = 0;
             flag1 = false;
             index = 0;
+//            print "in eConfReq1";
 
             // the findChanByPara function is hard-coded here.
-            while(counter2 != sizeof(Connection)){
+            while(counter2 < sizeof(Connection)){
                 counter3 = 0;
-                while(counter3 != sizeof(Connection[counter2])){
+//                print "in eConfReq2";
+                while(counter3 < sizeof(Connection[counter2])){
                     if(Connection[counter2][counter3].nKey == 1 && readBuffer(Connection[counter2][counter3].fKey.value) == 1
                     && readBuffer(srcChanID.value) == readBuffer(Connection[counter2][counter3].fVal.value)){
                         flag1 = true;
                         index = counter2 + 1;
+//                        print "in eConfReq3";
                     }
                     counter3 = counter3 + 1;
                 }
+//                print "in eConfReq4";
                 counter2 = counter2 + 1;
             }
             if (flag1 == true){
-                targetChan = Connection[index-1];
+//                print "in eConfReq5";
+                targetChan = Connection[index - 1];
+//                print "in eConfReq6";
                 targetChan += (sizeof(targetChan) - 1, mtuPara);
-                targetChanM = ChanMachineList[index];
-                send targetChanM, eChanGotoConfig;
+//                print "in eConfReq7";
+                targetChanM = ChanMachineList[sizeof(Connection)];
+//                print "in eConfReq8";
+                send targetChanM, eChanGotoConnected;
                 send wReq.source, eConfResp, true;
                 return;
             }

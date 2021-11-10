@@ -23,11 +23,11 @@ machine ClientMachine
     state SendReqs {
         entry(IsConn: int) {
             var request: tMsg;
-            var request_option0: tMsg;
-            var request_option1: tMsg;
-            var request_option1_msub: tMsg;
-            var connreq: tMsg;
-            var confreq: tHMsub;
+            var cvmsgConnReq: tMsg;
+            var cvmsgConfReq: tMsg;
+            var cvmsgoptPlist: tMsg;
+
+//            print "in sendreqs";
             request = vmsgL2Cmd; // msgL2Cmd
 
             // we will need to cast these variables explicitly to assign values to them.
@@ -36,30 +36,32 @@ machine ClientMachine
             cvmsgConfReq = request.hcmsub.msub[1].msub as tMsg; // msgConfReq, effective field is hmsub.
             cvmsgoptPlist = cvmsgConfReq.hmsub.msub as tMsg;  // msgoptPlist, effective field is l.
 
+            cvmsgConnReq.fp[0].value =
+                writeBuffer(cvmsgConnReq.fp[0].nSize, cvmsgConnReq.fp[0].nLow + 1);
+            cvmsgConnReq.fp[1].value =
+                writeBuffer(cvmsgConnReq.fp[1].nSize, cvmsgConnReq.fp[1].nLow);
+            request.hcmsub.msub[0].msub = cvmsgConnReq as data;
+
+            cvmsgConfReq.hmsub.h.f[0].value =
+                writeBuffer(cvmsgConfReq.hmsub.h.f[0].nSize, cvmsgConfReq.hmsub.h.f[0].nLow);
+            cvmsgoptPlist.l.pP[0].fKey.value =
+                writeBuffer(cvmsgoptPlist.l.pP[0].fKey.nSize, cvmsgoptPlist.l.pP[0].fKey.nLow);
+            cvmsgoptPlist.l.pP[0].fVal.value =
+                writeBuffer(cvmsgoptPlist.l.pP[0].fVal.nSize, cvmsgoptPlist.l.pP[0].fVal.nLow);
+            cvmsgConfReq.hmsub.msub = cvmsgoptPlist as data;
+            cvmsgConfReq.hmsub.h.f[0].value =
+                writeBuffer(cvmsgConfReq.hmsub.h.f[0].nSize, cvmsgConfReq.hmsub.h.f[0].nLow);
+            request.hcmsub.msub[1].msub = cvmsgConfReq as data;
+
             if(IsConn == 1){
                 // ConnReq
                 request.hcmsub.h.f[0].value =
                     writeBuffer(request.hcmsub.h.f[0].nSize, request.hcmsub.msub[0].nType);
-                cvmsgConnReq.fp[0].value =
-                    writeBuffer(cvmsgConnReq.fp[0].nSize, cvmsgConnReq.fp[0].nLow);
-                request_option0.fp[1].value =
-                    writeBuffer(cvmsgConnReq.fp[1].nSize, cvmsgConnReq.fp[0].nLow);
-                request.hcmsub.msub[0].msub = cvmsgConnReq as data;
             }
             else{
                 // ConfReq
                 request.hcmsub.h.f[0].value =
                     writeBuffer(request.hcmsub.h.f[0].nSize,request.hcmsub.msub[1].nType);
-                cvmsgConfReq.hmsub.h.f[0].value =
-                    writeBuffer(cvmsgConfReq.hmsub.h.f[0].nSize, cvmsgConfReq.hmsub.h.f[0].nLow);
-                cvmsgoptPlist.l.pP[0].fKey.value =
-                    writeBuffer(cvmsgoptPlist.l.pP[0].fKey.nSize, cvmsgoptPlist.l.pP[0].fKey.nLow);
-                cvmsgoptPlist.l.pP[0].fVal.value =
-                    writeBuffer(cvmsgoptPlist.l.pP[0].fVal.nSize, cvmsgoptPlist.l.pP[0].fVal.nLow);
-                cvmsgConfReq.hmsub.msub = cvmsgoptPlist as data;
-                cvmsgConfReq.hmsub.h.f[0].value =
-                    writeBuffer(cvmsgConfReq.hmsub.h.f[0].nSize, cvmsgConfReq.hmsub.h.f[0].nLow);
-                request.hcmsub.msub[1].msub = request_option1 as data;
             }
             send ConnServer, eL2CmdReq, (source = this, req = request);
             goto WaitForReply;

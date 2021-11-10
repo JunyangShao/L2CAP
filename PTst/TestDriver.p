@@ -24,31 +24,31 @@ fun SetupClientServerSystem(numClients: int)
 
     tmpPara.nKey = 1;
     tmpPara.fKey.nSize = 1;
-    tmpPara.fKey.nLow = 1;
-    tmpPara.fKey.nHigh = 1;
+    tmpPara.fKey.nLow = 0;
+    tmpPara.fKey.nHigh = 255;
     tmpPara.fKey.value = writeBuffer(1, 1);
     tmpPara.fVal.nSize = 2;
     tmpPara.fVal.nLow = 1;
     tmpPara.fVal.nHigh = 65535;
 //    tmpPara.fVal.value = writeBuffer(2, choose(65535) + 1);
-    tmpPara.fVal.value = writeBuffer(2, 1 + 1);
+    tmpPara.fVal.value = writeBuffer(2, tmpPara.fVal.nLow + 1);
     InitChannel += (0, tmpPara);
 
     tmpPara.nKey = 2;
     tmpPara.fKey.nSize = 1;
-    tmpPara.fKey.nLow = 2;
-    tmpPara.fKey.nHigh = 2;
+    tmpPara.fKey.nLow = 0;
+    tmpPara.fKey.nHigh = 255;
     tmpPara.fKey.value = writeBuffer(1, 2);
     tmpPara.fVal.nSize = 1;
     tmpPara.fVal.nLow = 1;
     tmpPara.fVal.nHigh = 23;
 //    tmpPara.fVal.value = writeBuffer(1, choose(23) + 1);
-    tmpPara.fVal.value = writeBuffer(1, 1 + 1);
+    tmpPara.fVal.value = writeBuffer(1, tmpPara.fVal.nLow + 1);
     InitChannel += (1, tmpPara);
 
     InitServer = new VarInitMachine();
-    InitConnetcion += (0, InitChannel);
     InitConnetcion = default(tConn);
+    InitConnetcion += (0, InitChannel);
     ConnServer = new ConnMachine((serv=InitServer, conn=InitConnetcion));
 
     while(counter < numClients){

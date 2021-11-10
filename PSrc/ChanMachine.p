@@ -1,5 +1,8 @@
 event eChanGotoConnected;
 event eChanGotoConfig;
+event eChanDead;
+event eChanStarted;
+event eChanConnected;
 
 // payload is the state id.
 event eStartTimer: int;
@@ -34,7 +37,7 @@ machine ChanMachine
     }
     state BT_START{
         entry{
-            print "Channel Started";
+//            print "Channel Started";
         }
         on eChanGotoConfig do{
             send ConfigTimer, eStartTimer, 0;
@@ -44,7 +47,8 @@ machine ChanMachine
     }
     state BT_CONFIG{
         entry{
-            print "Channel Config Success";
+            announce eChanStarted;
+//            print "Channel Config Success";
         }
         //state id = 0
         on eChanGotoConnected do{
@@ -60,7 +64,8 @@ machine ChanMachine
 
     state BT_CONNECTED{
         entry{
-            print "Channel Connect Success";
+            announce eChanConnected;
+//            print "Channel Connect Success";
         }
         // state id = 1
         on eTimeOut do (stateid: int){
@@ -71,6 +76,9 @@ machine ChanMachine
     }
 
     state BT_DEAD{
+        entry{
+            announce eChanDead;
+        }
         ignore eChanGotoConnected, eTimeOut;
     }
 
@@ -96,9 +104,11 @@ machine TimerMachine
 
     state TimerStarted {
         entry(stateid: int) {
-            sleepFor(timeout);
-            send client, eTimeOut, stateid;
-            goto WaitForTimerRequests;
+            if(timeout != 0){
+                sleepFor(timeout);
+                send client, eTimeOut, stateid;
+                goto WaitForTimerRequests;  `
+            }
         }
         ignore eStartTimer;
     }

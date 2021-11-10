@@ -4,3 +4,4 @@ rm -rf Test.cs
 rm -rf netcoreapp3.1 
 rm -rf obj 
 rm -rf POutput
+rm -rf tmp*

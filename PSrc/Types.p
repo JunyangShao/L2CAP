@@ -56,8 +56,16 @@ machine VarInitMachine{
             vmtuPara = (nKey=10, fKey=vmtuType, fVal=vmtuVal);
             voptPlist = (nSize=8, pP=default(seq[tPara]));
                 voptPlist.pP += (0,vmtuPara);
+                voptPlist.pP += (1,default(tPara));
+                voptPlist.pP += (2,default(tPara));
+                voptPlist.pP += (3,default(tPara));
+                voptPlist.pP += (4,default(tPara));
+                voptPlist.pP += (5,default(tPara));
+                voptPlist.pP += (6,default(tPara));
+                voptPlist.pP += (7,default(tPara));
+
             vmsgoptPlist = (chosen=3, v=default(tVar), p=default(tPara), fp=default(seq[tFix]),
-                         l=voptPlist, hmsub=default(tHMsubs), hcmsub=default(tHcMsub));
+                         l=voptPlist, hmsub=default(tHMsub), hcmsub=default(tHcMsub));
             vsrcChanID = (nSize=2, nLow=1, nHigh=65535, value = default(seq[int]));
             vconfReqHdr = (f=default(seq[tFix]), fLen=(nSize=1, nLow=0, nHigh=255, value=writeBuffer(1, 1)));
                             vconfReqHdr.f += (0, vsrcChanID);
@@ -85,8 +93,12 @@ machine VarInitMachine{
                         hcmsub=(h=vcmdHdr, msub=default(seq[tcMsub])));
                         vmsgL2Cmd.hcmsub.msub += (0, (nType=2, msub=vmsgConnReq));
                         vmsgL2Cmd.hcmsub.msub += (1, (nType=4, msub=vmsgConfReq));
-            BT_CONFIG_timeout = 2000;
-            BT_CONNECTED_timeout = 2000;
+            BT_CONFIG_timeout = 200;
+//            BT_CONFIG_timeout = 0;
+
+            BT_CONNECTED_timeout = 200;
+//            BT_CONNECTED_timeout = 0;
+
             goto WaitForMsgDefaultValueRequest;
         }
     }

@@ -12,7 +12,7 @@ event eComposetPara : tPara;
 event eComposetPlist : tPlist;
 event eComposetMsg : tMsg;
 
-spec L2CAPFormatIsCorrect observes
+spec MessageFormatSpecMachine observes
 eParsetFix, eParsetVar, eParsetHdr, eParsetPara, eParsetPlist, eParsetMsg,
 eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eComposetMsg {
 
@@ -91,6 +91,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
 
     fun checktFix (value: tFix) {
         var val : int;
+        print "in Fix";
         val = readBuffer2(value.value);
         print format ("val={0}, value.nSize={1}, sizeof(value.value)={2} value.nHigh={3}, value.nLow={4}",
                     val, value.nSize, sizeof(value.value), value.nHigh, value.nLow);
@@ -98,6 +99,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
         if(value.nSize != 0){
            assert val <= value.nHigh && val>= value.nLow;
         }
+        print "out Fix";
         return;
     }
 
@@ -106,6 +108,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
         print "in Var";
         val = sizeof(value.value);
         assert val <= value.nHigh && val >= value.nLow;
+        print "out Var";
         return;
     }
 
@@ -118,6 +121,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
             checktFix(value.f[count]);
             count = count + 1;
         }
+        print "out Hdr";
         return;
     }
 
@@ -128,6 +132,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
         fval = readBuffer2(value.fKey.value);
         assert value.nKey == fval;
         checktFix(value.fVal);
+        print "out Para";
         return;
     }
 
@@ -135,10 +140,12 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
         var count : int;
         print "in Plist";
         count = 0;
+        assert sizeof(value.pP) == value.nSize;
         while(count < value.nSize){
             checktPara(value.pP[count]);
             count = count + 1;
         }
+        print "out Plist";
         return;
     }
 
@@ -153,10 +160,12 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
          if(value.chosen == 0){
              print "in 0";
              checktVar(value.v);
+             print "out 0";
          }
          else if(value.chosen == 1){
              print "in 1";
              checktPara(value.p);
+             print "out 1";
          }
          else if(value.chosen == 2){
              print "in 2";
@@ -165,16 +174,19 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
                  checktFix(value.fp[count]);
                  count = count + 1;
              }
+             print "out 2";
          }
          else if(value.chosen == 3){
              print "in 3";
              checktPlist(value.l);
+             print "out 3";
          }
          else if(value.chosen == 4){
              print "in 4";
              checktHdr(value.hmsub.h);
              tmpmsg = value.hmsub.msub as tMsg;
              checktMsg(tmpmsg);
+             print "out 4";
          }
          else if(value.chosen == 5){
              print "in 5";
@@ -192,6 +204,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
                  count = count + 1;
              }
              assert flag == true;
+             print "out 5";
          }
          return;
     }
