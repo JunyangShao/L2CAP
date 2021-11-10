@@ -38,7 +38,8 @@ machine ClientMachine
 
             if(IsConn == 1){
                 // ConnReq
-                request.hcmsub.h.f[0].value = writeBuffer(request.hcmsub.h.f[0].nSize, request.hcmsub.msub[0].nType);
+                request.hcmsub.h.f[0].value =
+                    writeBuffer(request.hcmsub.h.f[0].nSize, request.hcmsub.msub[0].nType);
                 cvmsgConnReq.fp[0].value =
                     writeBuffer(cvmsgConnReq.fp[0].nSize, cvmsgConnReq.fp[0].nLow);
                 request_option0.fp[1].value =
@@ -47,15 +48,17 @@ machine ClientMachine
             }
             else{
                 // ConfReq
-                request.hcmsub.h.f[0].value = writeBuffer(request.hcmsub.h.f[0].nSize,request.hcmsub.msub[1].nType);
+                request.hcmsub.h.f[0].value =
+                    writeBuffer(request.hcmsub.h.f[0].nSize,request.hcmsub.msub[1].nType);
                 cvmsgConfReq.hmsub.h.f[0].value =
                     writeBuffer(cvmsgConfReq.hmsub.h.f[0].nSize, cvmsgConfReq.hmsub.h.f[0].nLow);
                 cvmsgoptPlist.l.pP[0].fKey.value =
                     writeBuffer(cvmsgoptPlist.l.pP[0].fKey.nSize, cvmsgoptPlist.l.pP[0].fKey.nLow);
                 cvmsgoptPlist.l.pP[0].fVal.value =
                     writeBuffer(cvmsgoptPlist.l.pP[0].fVal.nSize, cvmsgoptPlist.l.pP[0].fVal.nLow);
-                request_option1.hmsub.msub = request_option1_msub as data;
-                request_option1.hmsub.h.f[0].value = writeBuffer(request_option0.hmsub.h.f[0].nSize, 1 + 1);
+                cvmsgConfReq.hmsub.msub = cvmsgoptPlist as data;
+                cvmsgConfReq.hmsub.h.f[0].value =
+                    writeBuffer(cvmsgConfReq.hmsub.h.f[0].nSize, cvmsgConfReq.hmsub.h.f[0].nLow);
                 request.hcmsub.msub[1].msub = request_option1 as data;
             }
             send ConnServer, eL2CmdReq, (source = this, req = request);
