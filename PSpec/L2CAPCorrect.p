@@ -50,117 +50,165 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
     //      - A Future better workaround:
     //      write more foreign functions and foreign types to relief the need to transmit value fields together in the communication channels(in the P part).
         on eParsetFix do (value: tFix){
-            var val : int;
-            val = readBuffer(value.value);
-            assert sizeof(value.value) == value.nSize;
-            assert val <= value.nHigh && val>= value.nLow;
-            return;
+            checktFix(value);
         }
         on eParsetVar do (value: tVar){
-            var val : int;
-            val = sizeof(value.value);
-            assert val <= nHigh && val >= nLow;
-            return;
+            checktVar(value);
         }
         on eParsetHdr do (value: tHdr){
-            var count : int;
-            count = 0;
-            announce eParsetFix, value.fLen;
-            while(count < sizeof(value.f)){
-                announce eParsetFix, value.f[count];
-                count = count + 1;
-            }
-            return;
+            checktHdr(value);
         }
         on eParsetPara do (value: tPara){
-            var fval : int;
-            announce eParsetFix, value.fKey;
-            fval = readBuffer(value.fKey);
-            assert value.nKey == fval;
-            announce eParsetFix, value.fVal;
-            return;
+            checktPara(value);
         }
         on eParsetPlist do (value: tPlist){
-            var count : int;
-            count = 0;
-            while(count < value.nSize){
-                announce eParsetPara, value.pP[count];
-                count = count + 1;
-            }
-            return;
+            checktPlist(value);
         }
         on eParsetMsg do (value: tMsg){
-            var count : int;
-            var tmpmsg : tMsg;
-            var flag : bool;
-            var tmpvar : int;
-            var tmpcMsub : tcMsub;
-            count = 0;
-            assert value.chosen>=0 && value.chosen <=5;
-            if(value.chosen == 0){
-                announce eParsetVar, value.v;
-            }
-            else if(value.chosen == 1){
-                announce eParsetPara, value.p;
-            }
-            else if(value.chosen == 2){
-                count = 0;
-                while(count < sizeof(value.fp)){
-                    announce eParsetFix, value.fp[count];
-                    count = count + 1;
-                }
-            }
-            else if(value.chosen == 3){
-                announce eParsetPlist, value.l;
-            }
-            else if(value.chosen == 4){
-                announce eParsetHdr, value.hmsub.h;
-                tmpmsg = value.hmsub.msub as tMsg;
-                announce eParsetMsg, tmpmsg;
-            }
-            else if(value.chosen == 5){
-                announce eParsetHdr, value.hcmsub.h;
-                assert sizeof(value.hcmsub.h.f) >= 1;
-                tmpvar = readBuffer(value.hcmsub.h.f[0]); // chosen sub-msg index
-                count = 0;
-                while(count < sizeof(value.hcmsub.msub)){
-                    tmpcMsub = value.hcmsub.msub[count];
-                    tmpmsg = tmpcMsub.msub as tMsg;
-                    announce eParsetMsg, tmpmsg;
-                    if(tmpcMsub.nType==tmpvar){
-                        flag = true;
-                    }
-                    count = count + 1;
-                }
-                assert flag == true;
-            }
-            return;
+            checktMsg(value);
         }
 
         // for now the compose is identical to parse.
         on eComposetFix do (value: tFix){
-            var val : int;
-            return;
+            checktFix(value);
         }
         on eComposetVar do (value: tVar){
-            var val : int;
-            return;
+            checktVar(value);
         }
         on eComposetHdr do (value: tHdr){
-            var val : int;
-            return;
+            checktHdr(value);
         }
         on eComposetPara do (value: tPara){
-            var val : int;
-            return;
+            checktPara(value);
         }
         on eComposetPlist do (value: tPlist){
-            var val : int;
-            return;
+            checktPlist(value);
         }
         on eComposetMsg do (value: tMsg){
-            var val : int;
-            return;
+            checktMsg(value);
         }
     }
+
+    fun checktFix (value: tFix) {
+        var val : int;
+        val = readBuffer2(value.value);
+        print format ("val={0}, value.nSize={1}, sizeof(value.value)={2} value.nHigh={3}, value.nLow={4}",
+                    val, value.nSize, sizeof(value.value), value.nHigh, value.nLow);
+        assert sizeof(value.value) == value.nSize;
+        if(value.nSize != 0){
+           assert val <= value.nHigh && val>= value.nLow;
+        }
+        return;
+    }
+
+    fun checktVar (value: tVar) {
+        var val : int;
+        print "in Var";
+        val = sizeof(value.value);
+        assert val <= value.nHigh && val >= value.nLow;
+        return;
+    }
+
+    fun checktHdr (value: tHdr) {
+        var count : int;
+        print "in Hdr";
+        count = 0;
+        checktFix(value.fLen);
+        while(count < sizeof(value.f)){
+            checktFix(value.f[count]);
+            count = count + 1;
+        }
+        return;
+    }
+
+    fun checktPara (value: tPara) {
+        var fval : int;
+        print "in Para";
+        checktFix(value.fKey);
+        fval = readBuffer2(value.fKey.value);
+        assert value.nKey == fval;
+        checktFix(value.fVal);
+        return;
+    }
+
+    fun checktPlist (value: tPlist) {
+        var count : int;
+        print "in Plist";
+        count = 0;
+        while(count < value.nSize){
+            checktPara(value.pP[count]);
+            count = count + 1;
+        }
+        return;
+    }
+
+    fun checktMsg (value: tMsg) {
+         var count : int;
+         var tmpmsg : tMsg;
+         var flag : bool;
+         var tmpvar : int;
+         var tmpcMsub : tcMsub;
+         count = 0;
+         assert value.chosen>=0 && value.chosen <=5;
+         if(value.chosen == 0){
+             print "in 0";
+             checktVar(value.v);
+         }
+         else if(value.chosen == 1){
+             print "in 1";
+             checktPara(value.p);
+         }
+         else if(value.chosen == 2){
+             print "in 2";
+             count = 0;
+             while(count < sizeof(value.fp)){
+                 checktFix(value.fp[count]);
+                 count = count + 1;
+             }
+         }
+         else if(value.chosen == 3){
+             print "in 3";
+             checktPlist(value.l);
+         }
+         else if(value.chosen == 4){
+             print "in 4";
+             checktHdr(value.hmsub.h);
+             tmpmsg = value.hmsub.msub as tMsg;
+             checktMsg(tmpmsg);
+         }
+         else if(value.chosen == 5){
+             print "in 5";
+             checktHdr(value.hcmsub.h);
+             assert sizeof(value.hcmsub.h.f) >= 1;
+             tmpvar = readBuffer2(value.hcmsub.h.f[0].value); // chosen sub-msg index
+             count = 0;
+             while(count < sizeof(value.hcmsub.msub)){
+                 tmpcMsub = value.hcmsub.msub[count];
+                 tmpmsg = tmpcMsub.msub as tMsg;
+                 checktMsg(tmpmsg);
+                 if(tmpcMsub.nType == tmpvar){
+                     flag = true;
+                 }
+                 count = count + 1;
+             }
+             assert flag == true;
+         }
+         return;
+    }
+    fun readBuffer2 (buf : seq[int]) : int {
+        var bufsize : int;
+        var counter : int;
+        var ret : int;
+
+        bufsize = sizeof(buf);
+        counter = 0;
+        ret = 0;
+        while (counter < bufsize){
+            ret = ret * 256;
+            ret = ret + buf[counter];
+            counter = counter + 1;
+        }
+        return ret;
+    }
 }
+

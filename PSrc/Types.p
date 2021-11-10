@@ -19,6 +19,11 @@ machine VarInitMachine{
     var vmtuVal: tFix;
     var vmtuPara: tPara;
     var voptPlist: tPlist;
+
+    // noted that the msgConfReq is not evaluated correctly, where they jump an abstract type.
+    // we will need a new type here.
+    var vmsgoptPlist: tMsg;
+
     var vsrcChanID: tFix;
     var vconfReqHdr: tHdr;
 
@@ -51,6 +56,8 @@ machine VarInitMachine{
             vmtuPara = (nKey=10, fKey=vmtuType, fVal=vmtuVal);
             voptPlist = (nSize=8, pP=default(seq[tPara]));
                 voptPlist.pP += (0,vmtuPara);
+            vmsgoptPlist = (chosen=3, v=default(tVar), p=default(tPara), fp=default(seq[tFix]),
+                         l=voptPlist, hmsub=default(tHMsubs), hcmsub=default(tHcMsub));
             vsrcChanID = (nSize=2, nLow=1, nHigh=65535, value = default(seq[int]));
             vconfReqHdr = (f=default(seq[tFix]), fLen=(nSize=1, nLow=0, nHigh=255, value=writeBuffer(1, 1)));
                             vconfReqHdr.f += (0, vsrcChanID);
@@ -64,7 +71,7 @@ machine VarInitMachine{
             vcmdHdr = (f=default(seq[tFix]), fLen=(nSize=1, nLow=0, nHigh=255, value=writeBuffer(1, 1)));
             vcmdHdr.f += (0, vcmdType);
             vmsgConfReq = (chosen=4, v=default(tVar), p=default(tPara), fp=default(seq[tFix]),
-                        l=default(tPlist), hmsub=(h=vconfReqHdr, msub=voptPlist), hcmsub=default(tHcMsub));
+                        l=default(tPlist), hmsub=(h=vconfReqHdr, msub=vmsgoptPlist), hcmsub=default(tHcMsub));
             vmsgConfRsp = (chosen=0, v=default(tVar), p=default(tPara), fp=default(seq[tFix]),
                         l=default(tPlist), hmsub=default(tHMsub), hcmsub=default(tHcMsub));
             vmsgConnReq = (chosen=2, v=default(tVar), p=default(tPara), fp=default(seq[tFix]),
