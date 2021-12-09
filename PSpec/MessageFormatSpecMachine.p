@@ -91,61 +91,61 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
 
     fun checktFix (value: tFix) {
         var val : int;
-        print "in Fix";
+//        print "in Fix";
         val = readBuffer2(value.value);
-        print format ("val={0}, value.nSize={1}, sizeof(value.value)={2} value.nHigh={3}, value.nLow={4}",
-                    val, value.nSize, sizeof(value.value), value.nHigh, value.nLow);
+//        print format ("val={0}, value.nSize={1}, sizeof(value.value)={2} value.nHigh={3}, value.nLow={4}",
+//                    val, value.nSize, sizeof(value.value), value.nHigh, value.nLow);
         assert sizeof(value.value) == value.nSize;
         if(value.nSize != 0){
            assert val <= value.nHigh && val>= value.nLow;
         }
-        print "out Fix";
+//        print "out Fix";
         return;
     }
 
     fun checktVar (value: tVar) {
         var val : int;
-        print "in Var";
+//        print "in Var";
         val = sizeof(value.value);
         assert val <= value.nHigh && val >= value.nLow;
-        print "out Var";
+//        print "out Var";
         return;
     }
 
     fun checktHdr (value: tHdr) {
         var count : int;
-        print "in Hdr";
+//        print "in Hdr";
         count = 0;
         checktFix(value.fLen);
         while(count < sizeof(value.f)){
             checktFix(value.f[count]);
             count = count + 1;
         }
-        print "out Hdr";
+//        print "out Hdr";
         return;
     }
 
     fun checktPara (value: tPara) {
         var fval : int;
-        print "in Para";
+//        print "in Para";
         checktFix(value.fKey);
         fval = readBuffer2(value.fKey.value);
         assert value.nKey == fval;
         checktFix(value.fVal);
-        print "out Para";
+//        print "out Para";
         return;
     }
 
     fun checktPlist (value: tPlist) {
         var count : int;
-        print "in Plist";
+//        print "in Plist";
         count = 0;
         assert sizeof(value.pP) == value.nSize;
         while(count < value.nSize){
             checktPara(value.pP[count]);
             count = count + 1;
         }
-        print "out Plist";
+//        print "out Plist";
         return;
     }
 
@@ -158,38 +158,38 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
          count = 0;
          assert value.chosen>=0 && value.chosen <=5;
          if(value.chosen == 0){
-             print "in 0";
+//             print "in 0";
              checktVar(value.v);
-             print "out 0";
+//             print "out 0";
          }
          else if(value.chosen == 1){
-             print "in 1";
+//             print "in 1";
              checktPara(value.p);
-             print "out 1";
+//             print "out 1";
          }
          else if(value.chosen == 2){
-             print "in 2";
+//             print "in 2";
              count = 0;
              while(count < sizeof(value.fp)){
                  checktFix(value.fp[count]);
                  count = count + 1;
              }
-             print "out 2";
+//             print "out 2";
          }
          else if(value.chosen == 3){
-             print "in 3";
+//             print "in 3";
              checktPlist(value.l);
-             print "out 3";
+//             print "out 3";
          }
          else if(value.chosen == 4){
-             print "in 4";
+//             print "in 4";
              checktHdr(value.hmsub.h);
              tmpmsg = value.hmsub.msub as tMsg;
              checktMsg(tmpmsg);
-             print "out 4";
+//             print "out 4";
          }
          else if(value.chosen == 5){
-             print "in 5";
+//             print "in 5";
              checktHdr(value.hcmsub.h);
              assert sizeof(value.hcmsub.h.f) >= 1;
              tmpvar = readBuffer2(value.hcmsub.h.f[0].value); // chosen sub-msg index
@@ -204,7 +204,7 @@ eComposetFix, eComposetVar, eComposetHdr, eComposetPara, eComposetPlist, eCompos
                  count = count + 1;
              }
              assert flag == true;
-             print "out 5";
+//             print "out 5";
          }
          return;
     }

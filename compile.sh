@@ -1,1 +1,1 @@
-pc -proj:L2CAP.pproj
+/home/junyangshao/Desktop/P/publish/pc -proj:L2CAP.pproj
