@@ -106,8 +106,9 @@ machine TimerMachine
         entry(stateid: int) {
             if(timeout != 0){
                 sleepFor(timeout);
+//                sleepFor_counter(timeout);
                 send client, eTimeOut, stateid;
-                goto WaitForTimerRequests;  `
+                goto WaitForTimerRequests;
             }
         }
         ignore eStartTimer;
@@ -115,4 +116,14 @@ machine TimerMachine
 }
 
 fun sleepFor(sleeptime: int) : bool ;
+
+fun sleepFor_counter(sleeptime: int): bool
+{
+    var counter : int;
+    counter = 0;
+    while(counter < sleeptime){
+        counter = counter + 1;
+    }
+    return true;
+}
 

@@ -93,11 +93,11 @@ machine VarInitMachine{
                         hcmsub=(h=vcmdHdr, msub=default(seq[tcMsub])));
                         vmsgL2Cmd.hcmsub.msub += (0, (nType=2, msub=vmsgConnReq));
                         vmsgL2Cmd.hcmsub.msub += (1, (nType=4, msub=vmsgConfReq));
-            BT_CONFIG_timeout = 200;
-//            BT_CONFIG_timeout = 0;
+//            BT_CONFIG_timeout = 200;
+            BT_CONFIG_timeout = 0;
 
-            BT_CONNECTED_timeout = 200;
-//            BT_CONNECTED_timeout = 0;
+//            BT_CONNECTED_timeout = 200;
+            BT_CONNECTED_timeout = 0;
 
             goto WaitForMsgDefaultValueRequest;
         }

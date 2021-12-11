@@ -447,42 +447,99 @@ struct bdaddr_list {
 	u8 bdaddr_type;
 };
 
-#define my_container_of(ptr, type, member) \
-    (type *)((char *)(ptr) - (char *) &((type *)0)->member)
+#define READY4RELEASE1
+
+#define my_skb_pull
+
+BPF_ARRAY(skb_array, struct sk_buff, 1);
+BPF_ARRAY(lh_array, struct l2cap_hdr, 1);
+BPF_ARRAY(hcon_array, struct hci_conn, 1);
+
+BPF_ARRAY(hdev_array, struct hci_dev, 1);
+BPF_ARRAY(tmp_bdaddr_list_array, struct bdaddr_list, 1);
+
+#define my_list_next_entry(pos, member) \
+	my_list_entry((pos)->member.next, typeof(*(pos)), member)
+
+#define my_list_first_entry(ptr, type, member) \
+	my_list_entry((ptr)->next, type, member)
 
 #define my_list_entry(ptr, type, member) \
-    my_container_of(ptr, type, member)
+	my_container_of(ptr, type, member)
 
+#define my_container_of(ptr, type, member) ({			\
+const typeof(((type *)0)->member) * __mptr = (ptr);	\
+(type *)((char *)__mptr - offsetof(type, member)); })
 
-#define READY4RELEASE1
+#define my_list_for_each_entry(pos, head, member)				\
+	for (bpf_probe_read_kernel(pos, sizeof(struct bdaddr_list), my_list_first_entry(head, typeof(*pos), member));	\
+	     !list_entry_is_head(pos, head, member);			\
+	     bpf_probe_read_kernel(pos, sizeof(struct bdaddr_list), my_list_next_entry(pos, member)))
+
+static inline __attribute__((always_inline)) int bacmp(const bdaddr_t *ba1, const bdaddr_t *ba2)
+{
+	return memcmp(ba1, ba2, sizeof(bdaddr_t));
+}
+
+static inline __attribute__((always_inline)) struct bdaddr_list *hci_bdaddr_list_lookup(struct list_head *bdaddr_list,
+					 bdaddr_t *bdaddr, u8 type)
+{
+    int key = 0;
+	struct bdaddr_list *b = tmp_bdaddr_list_array.lookup(&key);
+
+    if(!b) return NULL;
+
+	my_list_for_each_entry(b, bdaddr_list, list) {
+		if (!bacmp(&b->bdaddr, bdaddr) && b->bdaddr_type == type)
+			return b;
+	}
+
+	return NULL;
+}
+
 
 int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struct sk_buff *skb_orig)
 {
 #ifdef READY4RELEASE1
-    struct sk_buff newskb;
-    newskb = *skb_orig;
-    struct sk_buff* skb;
-    skb = &newskb;
-    struct l2cap_hdr *lh = (void *) skb->data;
-	struct hci_conn *hcon = conn->hcon;
+    int key = 0;
+    struct sk_buff* skb = skb_array.lookup(&key);
+    struct l2cap_hdr* lh = lh_array.lookup(&key);
+    if(skb){
+        bpf_probe_read_kernel(skb, sizeof(struct sk_buff), skb_orig);
+        if(lh){
+            bpf_probe_read_kernel(lh, sizeof(struct l2cap_hdr), (void *) skb->data);
+        }
+    }
+    struct hci_conn* hcon = hcon_array.lookup(&key);
+    if(hcon){
+        bpf_probe_read_kernel(hcon, sizeof(struct hci_conn), conn->hcon);   
+    }
 	u16 cid;
     u16 len;
 	__le16 psm;
 	if (hcon->state != BT_CONNECTED) {
 		return 0;
 	}
+    if(!skb || !lh || !hcon){
+        return 0;
+    }
+
     /*
         -Findings-
         Reading from the sk_buff will create verification errors.
-        I think a better workaround will be read everything out of it and pass it to the user space :')
+        I think a better workaround will be reading everything out of it and pass it to the user space :')
         Will be a TODO
     */
-#else
-	skb_pull(skb, L2CAP_HDR_SIZE);
+	// skb_pull(skb, L2CAP_HDR_SIZE);
+    if(skb->len < L2CAP_HDR_SIZE)
+        return 0;
+
 	cid = __le16_to_cpu(lh->cid);
 	len = __le16_to_cpu(lh->len);
 
-	if (len != skb->len) {
+    unsigned int skb_len = skb->len - L2CAP_HDR_SIZE;
+
+	if (len != skb_len) {
 		return 0;
 	}
 
@@ -502,17 +559,13 @@ int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struc
         ret2 = BDADDR_BREDR;
     }
     {
-        struct list_head *bdaddr_list = &hcon->hdev->blacklist;
-        bdaddr_t *bdaddr = &hcon->dst;
-        struct bdaddr_list *b;
-        
-        for (b = my_list_entry((bdaddr_list)->prev, typeof(*b), list); &b->list != (bdaddr_list); b = my_list_entry((b)->list.prev, typeof(*(b)), list)){
-            if (!memcmp(&b->bdaddr, bdaddr, sizeof(bdaddr_t)) && b->bdaddr_type == ret2)
-                ret1 = b;
-        }
-        ret1 = NULL;
+        struct hci_dev* hdev = hdev_array.lookup(&key);
+        if(!hdev) return 0;
+        bpf_probe_read_kernel(hdev, sizeof(struct hci_dev), hcon->hdev);
+        ret1 = hci_bdaddr_list_lookup(&hdev->blacklist, &hcon->dst,
+            ret2);
     }
-
+#else
 	if (hcon->type == LE_LINK && ret1) {
 		return 0;
 	}
