@@ -558,14 +558,14 @@ int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struc
         }
         ret2 = BDADDR_BREDR;
     }
-    {
+    //{
         struct hci_dev* hdev = hdev_array.lookup(&key);
         if(!hdev) return 0;
+ #else
         bpf_probe_read_kernel(hdev, sizeof(struct hci_dev), hcon->hdev);
         ret1 = hci_bdaddr_list_lookup(&hdev->blacklist, &hcon->dst,
             ret2);
-    }
-#else
+    //}
 	if (hcon->type == LE_LINK && ret1) {
 		return 0;
 	}
