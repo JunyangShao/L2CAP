@@ -21,6 +21,8 @@ ish.mod.o
 
 ish.o
 
+ish.ko
+
 modules.order
 
 Module.symvers
