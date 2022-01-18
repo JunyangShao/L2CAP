@@ -1,0 +1,1 @@
+cmd_/home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/Module.symvers := sed 's/ko$$/o/' /home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/modules.order | scripts/mod/modpost -m -a   -o /home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/Module.symvers -e -i Module.symvers   -T -

@@ -1,0 +1,1 @@
+cmd_/home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/ish.ko := ld -r -m elf_x86_64  --build-id=sha1  -T scripts/module.lds -o /home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/ish.ko /home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/ish.o /home/junyangshao/Desktop/L2CAP_P/L2CAP/eBPF/kmod/ish.mod.o;  true

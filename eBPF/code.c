@@ -12,8 +12,8 @@
 
 
 struct l2cap_conn{
-    void		*hcon;
-    void		*hchan;
+    struct hci_conn	*hcon;
+    void	*hchan;	
     unsigned int	mtu;
 };
 
@@ -118,6 +118,8 @@ struct hci_conn {
 	struct dentry	*debugfs;
 
 	struct hci_dev	*hdev;
+	void		*l2cap_data;
+	void		*sco_data;
 };
 
 #define HCI_MAX_AMP_ASSOC_SIZE	672
@@ -447,7 +449,6 @@ struct bdaddr_list {
 	u8 bdaddr_type;
 };
 
-#define READY4RELEASE1
 
 #define my_skb_pull
 
@@ -497,32 +498,40 @@ static inline __attribute__((always_inline)) struct bdaddr_list *hci_bdaddr_list
 	return NULL;
 }
 
+#define READY4RELEASE1
+#define READY4RELEASE2
 
-int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struct sk_buff *skb_orig)
+int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn/*, struct sk_buff *skb_orig*/)
 {
 #ifdef READY4RELEASE1
+#else
     int key = 0;
     struct sk_buff* skb = skb_array.lookup(&key);
     struct l2cap_hdr* lh = lh_array.lookup(&key);
+    struct hci_conn* hcon = hcon_array.lookup(&key);
+	struct hci_dev* hdev = hdev_array.lookup(&key);
     if(skb){
-        bpf_probe_read_kernel(skb, sizeof(struct sk_buff), skb_orig);
+        bpf_probe_read_kernel(skb, sizeof(struct sk_buff), (void* ) skb_orig);
         if(lh){
             bpf_probe_read_kernel(lh, sizeof(struct l2cap_hdr), (void *) skb->data);
         }
     }
-    struct hci_conn* hcon = hcon_array.lookup(&key);
     if(hcon){
-        bpf_probe_read_kernel(hcon, sizeof(struct hci_conn), conn->hcon);   
+        bpf_probe_read_kernel(hcon, sizeof(struct hci_conn), (void *) conn->hcon);   
     }
+	if(hdev){
+		bpf_probe_read_kernel(hdev, sizeof(struct hci_dev), (void *) hcon->hdev);
+	}
 	u16 cid;
     u16 len;
 	__le16 psm;
 	if (hcon->state != BT_CONNECTED) {
 		return 0;
 	}
-    if(!skb || !lh || !hcon){
+	if(!skb || !lh || !hcon || !hdev){
         return 0;
     }
+
 
     /*
         -Findings-
@@ -531,6 +540,7 @@ int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struc
         Will be a TODO
     */
 	// skb_pull(skb, L2CAP_HDR_SIZE);
+	
     if(skb->len < L2CAP_HDR_SIZE)
         return 0;
 
@@ -547,25 +557,19 @@ int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struc
     // replace func call with plain codes.
     struct bdaddr_list * ret1;
     u8 ret2;
-    {
-        u8 link_type = hcon->type;
-        u8 bdaddr_type = hcon->dst_type;
-        if (link_type == LE_LINK) {
-            if (bdaddr_type == ADDR_LE_DEV_PUBLIC)
-                ret2 =  BDADDR_LE_PUBLIC;
-            else
-                ret2 = BDADDR_LE_RANDOM;
-        }
-        ret2 = BDADDR_BREDR;
-    }
-    //{
-        struct hci_dev* hdev = hdev_array.lookup(&key);
-        if(!hdev) return 0;
- #else
-        bpf_probe_read_kernel(hdev, sizeof(struct hci_dev), hcon->hdev);
-        ret1 = hci_bdaddr_list_lookup(&hdev->blacklist, &hcon->dst,
-            ret2);
-    //}
+	u8 link_type = hcon->type;
+	u8 bdaddr_type = hcon->dst_type;
+	if (link_type == LE_LINK) {
+		if (bdaddr_type == ADDR_LE_DEV_PUBLIC)
+			ret2 =  BDADDR_LE_PUBLIC;
+		else
+			ret2 = BDADDR_LE_RANDOM;
+	}
+	else
+		ret2 = BDADDR_BREDR;
+
+	ret1 = hci_bdaddr_list_lookup(&hdev->blacklist, &hcon->dst,
+		ret2);
 	if (hcon->type == LE_LINK && ret1) {
 		return 0;
 	}
@@ -577,6 +581,29 @@ int kprobe__l2cap_recv_frame(struct pt_regs *ctx, struct l2cap_conn *conn, struc
 		break;
     	default:
         break;
+	}
+#endif
+#ifdef READY4RELEASE2
+    int key = 0;
+    struct sk_buff* skb = skb_array.lookup(&key);
+    struct l2cap_hdr* lh = lh_array.lookup(&key);
+    struct hci_conn* hcon = hcon_array.lookup(&key);
+    if(skb){
+        bpf_probe_read_kernel(skb, sizeof(struct sk_buff), (void* ) skb_orig);
+        if(lh){
+            bpf_probe_read_kernel(lh, sizeof(struct l2cap_hdr), (void *) skb->data);
+        }
+    }
+	if(hcon){
+        bpf_probe_read_kernel(hcon, sizeof(struct hci_conn), (void *) conn->hcon);   
+    }
+	u16 cid;
+	cid = __le16_to_cpu(lh->cid);
+	switch (cid) {
+		case L2CAP_CID_SIGNALING:
+		{
+			struct l2cap_cmd_hdr *cmd;
+		}
 	}
 #endif
     return 0;

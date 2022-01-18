@@ -6,3 +6,22 @@ PSrc/ClientMachine.p.bak
 *.swp
 
 .idea
+
+.ish*
+
+.Module*
+
+.modules*
+
+ish.mod
+
+ish.mod.c
+
+ish.mod.o
+
+ish.o
+
+modules.order
+
+Module.symvers
+
