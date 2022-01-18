@@ -5,13 +5,13 @@ PSrc/ClientMachine.p.bak
 
 *.swp
 
-#.idea
+.idea
 
-#.ish*
+.ish*
 
-#.Module*
+.Module*
 
-#.modules*
+.modules*
 
 ish.mod
 
