@@ -23,6 +23,8 @@ ish.o
 
 ish.ko
 
+.vscode
+
 modules.order
 
 Module.symvers
