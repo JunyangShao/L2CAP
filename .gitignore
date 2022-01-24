@@ -25,6 +25,8 @@ ish.ko
 
 .vscode
 
+a.out
+
 modules.order
 
 Module.symvers

@@ -1,4 +1,6 @@
 #include "L2CAP.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 // Type universe for program:
 static PRT_TYPE P_GEND_TYPE_B = { PRT_KIND_ANY, { NULL } };
@@ -9838,5 +9840,20 @@ PRT_FUNDECL* P_ALL_FUNCTIONS[] = { &P_FUNCTION_readBuffer, &P_FUNCTION_writeBuff
 PRT_FOREIGNTYPEDECL* P_ALL_FOREIGN_TYPES[] = { NULL };
 
 int main(){
+    FILE* fp = fopen("/dev/kmsg", "r");
+    size_t len = 0;
+    ssize_t read;
+    char* line = NULL;
+    char* subs_start = 0;
+    if(fp == NULL) return 0;
+    while ((read = getline(&line, &len, fp)) != -1) {
+        if(subs_start = strstr(line, "P Server ID = 668")){
+            printf("%s", subs_start);
+        }
+    }
+
+    fclose(fp);
+    if (line)
+        free(line);
     return 0;
 }
