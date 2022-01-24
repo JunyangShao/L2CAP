@@ -1,5 +1,7 @@
+#pragma once
 #ifndef LINUX_EXT_COMPAT
 #define LINUX_EXT_COMPAT
+
 
 #include <stdio.h>
 #include <string.h>

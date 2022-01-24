@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PRT_EXECUTION_H
 #define PRT_EXECUTION_H
 

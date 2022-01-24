@@ -5,6 +5,7 @@
 * and with different concurrency models.
 
 */
+#pragma once
 #ifndef PRTCONFIG_H
 #define PRTCONFIG_H
 
@@ -47,6 +48,7 @@ extern "C" {
 #include <crtdbg.h>
 #endif
 
+// Added by Junyang, because VSCode fails to parse this C program, I think there needs a macro defined.
 #define PRT_PLAT_LINUXUSER
 
 #if defined(PRT_PLAT_WINUSER)

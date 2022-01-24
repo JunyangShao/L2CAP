@@ -14,6 +14,7 @@
 *    + Type tag - A non-zero GUID to let the client code determine the type of a foreign value.
 *    + Functions - A set of minimal functions to let PRT manipulate foreign values.
 */
+#pragma once
 #ifndef PRTTYPES_H
 #define PRTTYPES_H
 

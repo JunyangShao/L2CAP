@@ -2,6 +2,7 @@
 * \file PrtConfigLinuxUser.h
 * \brief Defines the Linux user configurations.
 */
+#pragma once
 #ifndef PRTCONFIG_LINUXUSER_H
 #define PRTCONFIG_LINUXUSER_H
 

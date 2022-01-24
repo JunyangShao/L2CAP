@@ -13,6 +13,7 @@
 * Also note that values contained in complex data types may have more specific type information. For instance,
 * the value obtained by reading the first element of `(1, true) : (any, int)` is `1 : int`.
 */
+#pragma once
 #ifndef PRTVALUES_H
 #define PRTVALUES_H
 #include "PrtTypes.h"

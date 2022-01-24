@@ -4,6 +4,7 @@
 * A P program will be compiled into a set of constant expressions
 * using these data structures.
 */
+#pragma once
 #ifndef PRTPROGRAM_H
 #define PRTPROGRAM_H
 
