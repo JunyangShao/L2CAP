@@ -7,21 +7,21 @@ PSrc/ClientMachine.p.bak
 
 .idea
 
-.ish*
+.l2cap-probe*
 
 .Module*
 
 .modules*
 
-ish.mod
+l2cap-probe.mod
 
-ish.mod.c
+l2cap-probe.mod.c
 
-ish.mod.o
+l2cap-probe.mod.o
 
-ish.o
+l2cap-probe.o
 
-ish.ko
+l2cap-probe.ko
 
 .vscode
 
@@ -31,3 +31,4 @@ modules.order
 
 Module.symvers
 
+pserv

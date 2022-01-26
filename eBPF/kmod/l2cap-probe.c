@@ -196,7 +196,7 @@ int kpb_pre_l2cap_sig_channel(struct kprobe *p, struct pt_regs *regs){
 			/* Parameters for P Module */
 
 			/* All Parameters get */
-			printk("P Server ID = 668, dstChanID = %d, l2psm = %d, can_putConn=%d", dstChanID, l2psm, can_putConn);
+			printk("P Server ID = 98517326, dstChanID = %d, l2psm = %d, can_putConn=%d", dstChanID, l2psm, can_putConn);
 			/* All Parameters get */
 		}
 		else if(cmd->code == L2CAP_CONF_REQ){
@@ -254,7 +254,7 @@ int kpb_pre_l2cap_sig_channel(struct kprobe *p, struct pt_regs *regs){
 					/* Parameters for P Module */	
 
 					/* All Parameters get */
-					printk("P Server ID = 668, srcChanID = %d, mtuVal = %d, can_putConf=%d", srcChanID, mtuVal, can_putConf);
+					printk("P Server ID = 98517326, srcChanID = %d, mtuVal = %d, can_putConf=%d", srcChanID, mtuVal, can_putConf);
 					/* All Parameters get */
 					break;
 				}
@@ -275,10 +275,12 @@ int minit(void)
 	printk("Module inserted\n ");
 
 	kp.pre_handler = kpb_pre_l2cap_recv_frame;
-	kp.addr = (kprobe_opcode_t *)0xffffffffc089be60;
+	// kp.addr = (kprobe_opcode_t *)0xffffffffc089be60;
+	kp.symbol_name = "l2cap_recv_frame";
 
 	kp2.pre_handler = kpb_pre_l2cap_sig_channel;
-	kp2.addr = (kprobe_opcode_t *)0xffffffffc089ab40;
+	// kp2.addr = (kprobe_opcode_t *)0xffffffffc089ab40;
+	kp2.symbol_name = "l2cap_sig_channel";
 
 	register_kprobe(&kp);
 	register_kprobe(&kp2);
