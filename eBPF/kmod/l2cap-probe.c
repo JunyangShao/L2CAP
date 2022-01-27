@@ -196,7 +196,7 @@ int kpb_pre_l2cap_sig_channel(struct kprobe *p, struct pt_regs *regs){
 			/* Parameters for P Module */
 
 			/* All Parameters get */
-			printk("P Server ID = 98517326, dstChanID = %d, l2psm = %d, can_putConn=%d", dstChanID, l2psm, can_putConn);
+			printk("P Server ID = 72422465, dstChanID = %d, l2psm = %d, can_putConn=%d", dstChanID, l2psm, can_putConn);
 			/* All Parameters get */
 		}
 		else if(cmd->code == L2CAP_CONF_REQ){
@@ -254,7 +254,7 @@ int kpb_pre_l2cap_sig_channel(struct kprobe *p, struct pt_regs *regs){
 					/* Parameters for P Module */	
 
 					/* All Parameters get */
-					printk("P Server ID = 98517326, srcChanID = %d, mtuVal = %d, can_putConf=%d", srcChanID, mtuVal, can_putConf);
+					printk("P Server ID = 72422465, srcChanID = %d, mtuVal = %d, can_putConf=%d", srcChanID, mtuVal, can_putConf);
 					/* All Parameters get */
 					break;
 				}

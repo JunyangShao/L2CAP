@@ -17,8 +17,8 @@ from random import randint
 #   Step 1-1: generate instance ID for communication
 servid = randint(0, 99999999)
 
-f = open("../eBPF/kmod/l2cap-probe-template.c","r")
-f2 = open("../eBPF/kmod/l2cap-probe.c","w")
+f = open("./eBPF/kmod/l2cap-probe-template.c","r")
+f2 = open("./eBPF/kmod/l2cap-probe.c","w")
 for i in f:
     j = i
     if 'P Server ID = $TEMPLATE' in j:
@@ -27,8 +27,8 @@ for i in f:
 f.close()
 f2.close()
 
-f = open("./L2CAP.c.template",'r')
-f2 = open("./L2CAP.c",'w')
+f = open("./C/L2CAP.c.template",'r')
+f2 = open("./C/L2CAP.c",'w')
 for i in f:
     j = i
     if 'P Server ID = $TEMPLATE' in j:
@@ -37,8 +37,8 @@ for i in f:
 f.close()
 f2.close()
 #   Step 1-2: recompile, insmod, start P service.
-os.system("sh build.sh")
-os.system("cd ../eBPF/kmod/ && sudo make && sudo rmmod l2cap-probe && sudo insmod l2cap-probe.ko && cd ../../C")
-os.system("clear && ./pserv")
+os.system("cd C && sh build.sh")
+os.system("cd eBPF/kmod/ && sudo make && sudo rmmod l2cap-probe && sudo insmod l2cap-probe.ko")
+os.system("clear && ./C/pserv")
 
 # Step 2: connect to some bluetooth devices
