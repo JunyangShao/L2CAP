@@ -78,7 +78,7 @@ machine ConnMachine
                 counter2 = counter2 + 1;
             }
             // createChan is hard-coded here.
-            // send response.
+            // send response/set configs
             if (flag1 == true && flag2 == false){
                 tmp1.nKey = 2;
                 tmp1.fKey.value = writeBuffer(2, 1);
